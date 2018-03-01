@@ -1,0 +1,132 @@
+﻿@model dotnetnepal.ViewModels.ProjectListViewModel
+@{
+    ViewData["Title"] = "Projects";
+    string repoChecked =  null;
+    string projectChecked = null;
+    if(Model.Type == "repository")
+    {
+        repoChecked = "checked";
+    }
+    else
+    {
+        projectChecked = "checked";
+    }
+
+ }
+
+    <header>
+        <h1>Browse</h1>
+        <h2>.NET Foundation Projects</h2>
+    </header>
+    <p>Projects under the stewardship of the .NET Foundation currently include the .NET Compiler Platform ("Roslyn") as well as the ASP.NET family of projects, .NET Core, Xamarin Forms along with popular .NET open source frameworks like xUnit and Reactive Extensions. We&rsquo;re actively engaged in supporting open source projects in the .NET ecosystem, you can <a href="/about">learn more about our work</a>&nbsp;or see our<span class="Apple-converted-space">&nbsp;</span><a title="blog" href="/blog">blog</a><span class="Apple-converted-space">&nbsp;</span>for the latest announcements.</p>
+    <p>Pick a project below to learn more about it and how to contribute:</p>
+
+    <form id="search"  method="get">
+            <div class="form-group">
+                <label class="control-label" for="q">Search</label>
+                <div class="input-group">
+                    <input class="form-control" id="q" name="q" type="text" value="@Model.Q" />
+                    <span class="input-group-addon">
+                        <i class="fa fa-search" aria-hidden="true"></i>
+                    </span>  
+                </div>
+                 
+            </div>
+            <div class="form-groupr">
+            <label>
+                <input id="type" name="type" type="radio" value="project" @projectChecked /> Projects
+            </label>
+            </div>
+            <div class="form-group">
+                <label>
+                    <input id="type" name="type" type="radio" value="repository" @repoChecked /> Repositories
+                </label>
+            </div>
+    </form>
+<div class="col-md-9">
+    @if (Model.Type == "repository")
+    {
+        @foreach (var item in Model.ProjectRepos.Data)
+        {
+            <article class="content-item project">
+                <header>
+                    <h3><a target="_blank" href="@item.Url">@item.Name </a></h3>
+                </header>
+                <p>@item.Description</p>
+            </article>
+        }
+        <div>
+            <cs-pager asp-action="Index" asp-controller="Projects"
+                      asp-route-q="@Model.Q"
+                      asp-route-type="@Model.Type"
+                      asp-route-ps="@Model.ProjectRepos.PageSize"
+                      cs-paging-pagenumber="@Model.ProjectRepos.PageNumber"
+                      cs-paging-totalitems="@Model.ProjectRepos.TotalItems"
+                      cs-pagenumber-param="pn"></cs-pager>
+        </div>
+    }
+    else
+    {
+        @foreach (var item in Model.Projects.Data)
+        {
+            <article class="content-item project">
+                <div data-mdurl="https://raw.githubusercontent.com/dotnet/home/master/projects/@item.Name"></div>
+                @{ 
+                    var contributor = Model.GetContributor(item.Contributor);
+                }
+                @if (contributor != null)
+                {
+                    if (!string.IsNullOrWhiteSpace(contributor.Logo))
+                    {
+                        <div class=""><a href="@contributor.Web"><img class="img-responsive contrib-logos" src="@contributor.Logo" alt="@contributor.Name" /></a></div>
+
+                    }
+                    else
+                    {
+                        <div><a href="@contributor.Web">@contributor.Name</a></div>
+
+                    }
+
+                }
+            </article><hr />
+        }
+        <div>
+            <cs-pager asp-action="Index" asp-controller="Projects"
+                      asp-route-q="@Model.Q"
+                      asp-route-type="@Model.Type"
+                      asp-route-ps="@Model.Projects.PageSize"
+                      cs-paging-pagenumber="@Model.Projects.PageNumber"
+                      cs-paging-totalitems="@Model.Projects.TotalItems"
+                      cs-pagenumber-param="pn"></cs-pager>
+        </div>
+    }
+</div>
+<div class="col-md-3">
+    <ul class="list-unstyled">
+        <li>
+            @Model.Summary.Projects Projects
+        </li>
+        <li>
+            @Model.Summary.Contributors Contributors
+        </li>
+        <li>
+            @Model.Summary.Organizations Organization
+        </li>
+        <li>
+            @Model.Summary.Forks Forks
+        </li>
+        <li>
+            @Model.Summary.OpenIssues Open Issues
+        </li>
+        <li>
+            @Model.Summary.Stars Stars
+        </li>
+    </ul>
+    
+</div>
+
+@section Scripts {
+<script src="~/js/showdown.min.js"></script>
+<script src="~/js/showdown-unobtrusive.js" asp-append-version="true"></script>
+}
+
